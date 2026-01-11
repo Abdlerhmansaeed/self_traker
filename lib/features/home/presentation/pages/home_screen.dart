@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:resposive_xx/responsive_x.dart';
+import 'package:self_traker/core/routing/app_router.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../widgets/balance_card.dart';
@@ -21,11 +23,14 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             children: [
               // Header
-              const HomeHeader(
+              HomeHeader(
                 userName: 'Alex Morgan',
                 avatarUrl:
                     'https://lh3.googleusercontent.com/aida-public/AB6AXuARRAN24rb0KR5ETVhZGke_0uxbaqed28BikmkzIQumT-oSuNJ-HDH6hfF5SC4OFCX5Xd5Wf9eAQcdxboR7WcCdr_yyxqcm9d9ZKJuRxfSRmOso9jPxm_7Qv1jnlfh82JSR38C2QUUvm5YZIQC9rQe13kbtnhcSDGpSHo5H5IPlqs0vitCU4CXgK9kyeNF8uB2F6k_rQHX69LQhNh9piYl-5cKPSu_i44m3ihCThSwPA_Ao566gKMy0wkju7O62dd8lGMXiIeo9g_Q',
                 hasNotifications: true,
+                onNotificationTap: () {
+                  context.goNamed(RoutesNames.notifications);
+                },
               ),
               // Content
               Padding(

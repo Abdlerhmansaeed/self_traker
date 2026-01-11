@@ -12,6 +12,8 @@
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../../features/home/presentation/cubit/home_cubit.dart' as _i9;
+import '../../features/voice_expense/cubit/voice_expense_cubit.dart' as _i627;
 import '../cubit/theme_cubit.dart' as _i319;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -21,6 +23,8 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
+    gh.factory<_i627.VoiceExpenseCubit>(() => _i627.VoiceExpenseCubit());
+    gh.singleton<_i9.HomeCubit>(() => _i9.HomeCubit());
     gh.lazySingleton<_i319.ThemeCubit>(() => _i319.ThemeCubit());
     return this;
   }

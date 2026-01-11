@@ -1,9 +1,10 @@
+// import 'dart:nativewrappers/_internal/vm/bin/vmservice_io.dart' as Routes;
+//
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:resposive_xx/responsive_x.dart';
-import 'package:self_traker/core/routing/app_router.dart';
-
+import '../../../core/routing/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -65,7 +66,7 @@ class OnboardingScreen extends StatelessWidget {
                     label: 'Continue with Apple',
                     isDark: true,
                     onTap: () {
-                      context.goNamed('main');
+                      context.goNamed(RoutesNames.main);
                     },
                   ),
                   SizedBox(height: AppDimensions.spacingSm + 4.h),
