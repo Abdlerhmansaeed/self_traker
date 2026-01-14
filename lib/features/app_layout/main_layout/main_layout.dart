@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:self_traker/core/di/injection.dart';
-import 'package:self_traker/features/voice_expense/cubit/voice_expense_cubit.dart';
+import 'package:self_traker/features/voice_expense/presentation/cubit/voice_expense_cubit.dart';
 import '../../analytics/presentation/pages/analytics_screen.dart';
 import '../../budget/presentation/pages/budget_screen.dart';
 import '../../home/presentation/pages/home_screen.dart';

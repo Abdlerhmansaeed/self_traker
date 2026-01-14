@@ -11,14 +11,14 @@ class TransactionData {
     required this.title,
     required this.subtitle,
     required this.amount,
-    required this.icon,
+     this.icon,
     this.isPositive = false,
   });
 
   final String title;
   final String subtitle;
   final String amount;
-  final IconData icon;
+  final IconData? icon;
   final bool isPositive;
 }
 

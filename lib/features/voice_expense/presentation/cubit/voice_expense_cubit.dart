@@ -3,15 +3,28 @@ import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:self_traker/core/di/injection.dart';
+import 'package:self_traker/features/home/presentation/cubit/home_cubit.dart';
+import 'package:self_traker/features/home/presentation/widgets/transaction_item.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import '../../data/data_source/voice_expense_tracker_data_source.dart';
 import 'voice_expense_state.dart';
 
+/// Cubit for managing voice expense tracking state.
+///
+/// This cubit handles:
+/// - Speech recognition initialization and listening
+/// - Microphone permission management
+/// - Integration with AI expense parsing service
+/// - Transaction confirmation workflow
+/// - Multiple expense detection and handling
 @injectable
 class VoiceExpenseCubit extends Cubit<VoiceExpenseState> {
-  VoiceExpenseCubit() : super(const VoiceExpenseState());
+  VoiceExpenseCubit(this._dataSource) : super(const VoiceExpenseState());
 
+  final VoiceExpenseTrackerDataSource _dataSource;
   final SpeechToText _speechToText = SpeechToText();
 
   /// Initialize speech recognition
@@ -91,7 +104,7 @@ class VoiceExpenseCubit extends Cubit<VoiceExpenseState> {
       state.copyWith(
         status: SpeechStatus.listening,
         speechText: '',
-        parsedTransaction: null,
+        parsedTransactions: [],
       ),
     );
 
@@ -133,41 +146,88 @@ class VoiceExpenseCubit extends Cubit<VoiceExpenseState> {
     }
   }
 
-  /// Parse transaction from speech text (placeholder for AI integration)
+  /// Parse transaction(s) from speech text using AI service.
+  ///
+  /// Calls the [VoiceExpenseTrackerDataSource] to parse the speech text
+  /// and converts the results to [ParsedTransaction] list for display.
+  /// Handles multiple expenses in a single input.
   Future<void> _parseTransaction() async {
-    // TODO: Integrate AI service to parse transaction from speechText
-    // For now, create a placeholder parsed transaction
+    try {
+      log('Parsing transaction from: ${state.speechText}');
 
-    // Simulate processing delay
-    await Future.delayed(const Duration(milliseconds: 500));
+      final parsedExpenses = await _dataSource.parseUserTransaction(
+        userInput: state.speechText,
+      );
 
-    final parsed = ParsedTransaction(
-      amount: _extractAmount(state.speechText),
-      category: 'Food & Dining', // Placeholder
-      note: state.speechText,
-      date: DateTime.now(),
-    );
+      log('Parsed ${parsedExpenses.length} expense(s)');
 
-    emit(
-      state.copyWith(status: SpeechStatus.result, parsedTransaction: parsed),
-    );
-  }
+      // Handle empty result edge case
+      if (parsedExpenses.isEmpty) {
+        emit(
+          state.copyWith(
+            status: SpeechStatus.error,
+            errorMessage:
+                'No expenses detected in your input. Please try again.',
+          ),
+        );
+        return;
+      }
 
-  /// Simple amount extraction (placeholder for AI)
-  double? _extractAmount(String text) {
-    // Simple regex to find numbers in text
-    final regex = RegExp(r'(\d+(?:\.\d+)?)');
-    final match = regex.firstMatch(text);
-    if (match != null) {
-      return double.tryParse(match.group(1) ?? '');
+      // Convert ParsedExpenseModel list to ParsedTransaction list for the UI
+      final transactions = parsedExpenses
+          .map(
+            (expense) => ParsedTransaction(
+              amount: expense.amount,
+              currency: expense.currency,
+              category: expense.category,
+              note: expense.description,
+              date: expense.resolvedDate,
+            ),
+          )
+          .toList();
+
+      log('Converted to ${transactions.length} transaction(s)');
+
+      emit(
+        state.copyWith(
+          status: SpeechStatus.result,
+          parsedTransactions: transactions,
+        ),
+      );
+    } catch (e) {
+      log('Error parsing transaction: $e');
+      emit(
+        state.copyWith(
+          status: SpeechStatus.error,
+          errorMessage: 'Failed to parse expense: ${e.toString()}',
+        ),
+      );
     }
-    return null;
   }
 
-  /// Confirm transaction
+  /// Confirm all transactions
   void confirmTransaction() {
-    // TODO: Save transaction to repository
-    log('Transaction confirmed: ${state.parsedTransaction}');
+    // TODO: Save all transactions to repository still 
+    final homeCubit = getIt<HomeCubit>();
+    homeCubit.updateUserBalance(amount: state.totalAmount);
+
+    homeCubit.updateUserTransactionsList(
+      userTransactionData: TransactionData(
+        amount: state.totalAmount.toString(),
+        title: state.parsedTransaction?.note ?? '',
+        // isPositive: state.parsedTransaction.,
+        subtitle: state.parsedTransaction?.category ?? 'No Sub',
+      ),
+    );
+
+    log(
+      'Confirmed ${state.transactionCount} transaction(s) totaling ${state.totalAmount} ${state.primaryCurrency}',
+    );
+    for (final transaction in state.parsedTransactions) {
+      log(
+        'Transaction: ${transaction.amount} ${transaction.currency} - ${transaction.category}',
+      );
+    }
     reset();
   }
 

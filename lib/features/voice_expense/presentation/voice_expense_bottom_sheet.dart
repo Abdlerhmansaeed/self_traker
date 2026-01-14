@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../cubit/voice_expense_cubit.dart';
-import '../cubit/voice_expense_state.dart';
+import 'cubit/voice_expense_cubit.dart';
+import 'cubit/voice_expense_state.dart';
 
 /// Voice expense bottom sheet matching the design
 class VoiceExpenseBottomSheet extends StatelessWidget {
@@ -169,11 +169,10 @@ class VoiceExpenseBottomSheet extends StatelessWidget {
   }
 
   Widget _buildResultState(BuildContext context, VoiceExpenseState state) {
-    final transaction = state.parsedTransaction;
-    final amount = transaction?.amount ?? 0;
-    final category = transaction?.category ?? 'Unknown';
-    final note = transaction?.note ?? '';
-    final date = transaction?.date ?? DateTime.now();
+    final transactions = state.parsedTransactions;
+    final total = state.totalAmount;
+    final count = state.transactionCount;
+    final currency = state.primaryCurrency;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -188,7 +187,11 @@ class VoiceExpenseBottomSheet extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.auto_awesome, size: 16, color: AppColors.textDark),
+              const Icon(
+                Icons.auto_awesome,
+                size: 16,
+                color: AppColors.textDark,
+              ),
               const SizedBox(width: 4),
               Text(
                 'AI PROCESSED',
@@ -202,68 +205,51 @@ class VoiceExpenseBottomSheet extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Transaction Detected
+        // Transaction Count
         Text(
-          'Transaction Detected',
+          count > 1 ? '$count Transactions Detected' : 'Transaction Detected',
           style: Theme.of(
             context,
           ).textTheme.bodyMedium?.copyWith(color: AppColors.neutral500),
         ),
         const SizedBox(height: 8),
 
-        // Amount
+        // Total Amount
         Text(
-          '${amount.toStringAsFixed(2)} EGP',
+          '${total.toStringAsFixed(2)} $currency',
           style: Theme.of(
             context,
           ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
 
-        // Category chip
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceLight,
-            borderRadius: BorderRadius.circular(20),
+        // Transaction list (if multiple)
+        if (count > 1) ...[
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 200),
+            child: ListView.separated(
+              shrinkWrap: true,
+              itemCount: transactions.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final t = transactions[index];
+                return _buildTransactionCard(context, t, index + 1);
+              },
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.restaurant, size: 16),
-              const SizedBox(width: 8),
-              Text(category, style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(width: 8),
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.positive,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        // Note field
-        _buildInfoRow(context, 'Note', note, Icons.edit),
-        const SizedBox(height: 12),
-
-        // Date field
-        _buildInfoRow(
-          context,
-          'Date',
-          DateFormat('EEEE, h:mm a').format(date),
-          Icons.calendar_today,
-        ),
-        const SizedBox(height: 24),
+          const SizedBox(height: 16),
+        ] else ...[
+          // Single transaction view
+          _buildSingleTransactionView(context, transactions.first),
+          const SizedBox(height: 16),
+        ],
 
         // Confirm button
         _buildPrimaryButton(
           context: context,
-          label: 'Confirm Transaction',
+          label: count > 1
+              ? 'Confirm $count Transactions'
+              : 'Confirm Transaction',
           icon: Icons.arrow_forward,
           onPressed: () {
             context.read<VoiceExpenseCubit>().confirmTransaction();
@@ -280,6 +266,144 @@ class VoiceExpenseBottomSheet extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildTransactionCard(
+    BuildContext context,
+    ParsedTransaction t,
+    int index,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                '$index',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.category ?? 'Unknown',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                if (t.note != null && t.note!.isNotEmpty)
+                  Text(
+                    t.note!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.neutral500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+          ),
+          Text(
+            '${t.amount?.toStringAsFixed(2) ?? '0'} ${t.currency ?? 'EGP'}',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSingleTransactionView(
+    BuildContext context,
+    ParsedTransaction transaction,
+  ) {
+    final category = transaction.category ?? 'Unknown';
+    final note = transaction.note ?? '';
+    final date = transaction.date ?? DateTime.now();
+
+    return Column(
+      children: [
+        // Category chip
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceLight,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(_getCategoryIcon(category), size: 16),
+              const SizedBox(width: 8),
+              Text(category, style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(width: 8),
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.positive,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Note field
+        _buildInfoRow(context, 'Note', note, Icons.edit),
+        const SizedBox(height: 12),
+
+        // Date field
+        _buildInfoRow(
+          context,
+          'Date',
+          DateFormat('EEEE, h:mm a').format(date),
+          Icons.calendar_today,
+        ),
+      ],
+    );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'food':
+        return Icons.restaurant;
+      case 'transport':
+        return Icons.directions_car;
+      case 'rent':
+        return Icons.home;
+      case 'utilities':
+        return Icons.bolt;
+      case 'entertainment':
+        return Icons.movie;
+      case 'shopping':
+        return Icons.shopping_bag;
+      case 'healthcare':
+        return Icons.medical_services;
+      case 'education':
+        return Icons.school;
+      default:
+        return Icons.receipt;
+    }
   }
 
   Widget _buildErrorState(BuildContext context, VoiceExpenseState state) {

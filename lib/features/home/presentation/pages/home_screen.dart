@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:resposive_xx/responsive_x.dart';
+import 'package:self_traker/core/di/injection.dart';
 import 'package:self_traker/core/routing/app_router.dart';
+import 'package:self_traker/features/home/presentation/cubit/home_cubit.dart';
+import 'package:self_traker/features/home/presentation/cubit/home_state.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../widgets/balance_card.dart';
@@ -11,15 +15,28 @@ import '../widgets/transaction_item.dart';
 import '../widgets/transactions_list.dart';
 
 /// Home screen displaying user balance, stats, and transactions
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late final HomeCubit _homeCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _homeCubit = getIt<HomeCubit>();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: 100.h), // Space for FAB
+          padding: EdgeInsets.only(bottom: 100.h),
           child: Column(
             children: [
               // Header
@@ -29,7 +46,7 @@ class HomeScreen extends StatelessWidget {
                     'https://lh3.googleusercontent.com/aida-public/AB6AXuARRAN24rb0KR5ETVhZGke_0uxbaqed28BikmkzIQumT-oSuNJ-HDH6hfF5SC4OFCX5Xd5Wf9eAQcdxboR7WcCdr_yyxqcm9d9ZKJuRxfSRmOso9jPxm_7Qv1jnlfh82JSR38C2QUUvm5YZIQC9rQe13kbtnhcSDGpSHo5H5IPlqs0vitCU4CXgK9kyeNF8uB2F6k_rQHX69LQhNh9piYl-5cKPSu_i44m3ihCThSwPA_Ao566gKMy0wkju7O62dd8lGMXiIeo9g_Q',
                 hasNotifications: true,
                 onNotificationTap: () {
-                  context.goNamed(RoutesNames.notifications);
+                  context.pushNamed(RoutesNames.notifications);
                 },
               ),
               // Content
@@ -41,10 +58,19 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     SizedBox(height: AppDimensions.spacingMd),
                     // Balance card
-                    const BalanceCard(
-                      balance: '\$12,450.00',
-                      percentageChange: '+2.4%',
-                      isPositive: true,
+                    BlocBuilder<HomeCubit, HomeState>(
+                      bloc: _homeCubit,
+                      buildWhen: (previous, current) {
+                        return previous.totalUserBalance !=
+                            current.totalUserBalance;
+                      },
+                      builder: (context, state) {
+                        return BalanceCard(
+                          balance: state.totalUserBalance.toString(),
+                          percentageChange: '+2.4%',
+                          isPositive: true,
+                        );
+                      },
                     ),
                     SizedBox(height: AppDimensions.spacingLg),
                     // Stats overview
@@ -58,11 +84,23 @@ class HomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: AppDimensions.spacingLg),
                     // Transactions list
-                    TransactionsList(
-                      transactions: _mockTransactions,
-                      onFilterTap: () {
-                        // TODO: Show filter options
+                    BlocBuilder<HomeCubit, HomeState>(
+                      bloc: _homeCubit,
+                      buildWhen: (p, c) {
+                        return p.userTransactionsList != c.userTransactionsList;
                       },
+                      builder: (context, state) {
+                        return state.userTransactionsList?.isEmpty ??
+                                true || state.userTransactionsList == null
+                            ? const Center(child: Text('No transactions yet'))
+                            : TransactionsList(
+                                transactions: state.userTransactionsList ?? [],
+                                onFilterTap: () {
+                                  // TODO: Show filter options
+                                },
+                              );
+                      },
+                      // child:
                     ),
                   ],
                 ),

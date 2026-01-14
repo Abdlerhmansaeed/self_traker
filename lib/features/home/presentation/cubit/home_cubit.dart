@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:self_traker/features/home/presentation/cubit/home_state.dart';
+import 'package:self_traker/features/home/presentation/widgets/transaction_item.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -22,6 +23,19 @@ class HomeCubit extends Cubit<HomeState> {
       }
     }
     emit(state.copyWith(isSpeechInitialized: available));
+  }
+
+  void updateUserBalance({required double amount}) {
+    emit(state.copyWith(totalUserBalance: amount));
+  }
+
+  void updateUserTransactionsList({
+    required TransactionData userTransactionData,
+  }) {
+    List<TransactionData> userTransactionsList =
+        state.userTransactionsList ?? [];
+    userTransactionsList.add(userTransactionData);
+    emit(state.copyWith(userTransactionsList: userTransactionsList));
   }
 
   void startListening() async {

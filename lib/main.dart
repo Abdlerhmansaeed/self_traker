@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:resposive_xx/responsive_x.dart';
-
 import 'core/cubit/theme_cubit.dart';
 import 'core/di/injection.dart';
 import 'core/routing/app_router.dart';
