@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // Header
               HomeHeader(
-                userName: 'Alex Morgan',
+                userName: 'Abdelrhman Saeed',
                 avatarUrl:
                     'https://lh3.googleusercontent.com/aida-public/AB6AXuARRAN24rb0KR5ETVhZGke_0uxbaqed28BikmkzIQumT-oSuNJ-HDH6hfF5SC4OFCX5Xd5Wf9eAQcdxboR7WcCdr_yyxqcm9d9ZKJuRxfSRmOso9jPxm_7Qv1jnlfh82JSR38C2QUUvm5YZIQC9rQe13kbtnhcSDGpSHo5H5IPlqs0vitCU4CXgK9kyeNF8uB2F6k_rQHX69LQhNh9piYl-5cKPSu_i44m3ihCThSwPA_Ao566gKMy0wkju7O62dd8lGMXiIeo9g_Q',
                 hasNotifications: true,
@@ -90,8 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return p.userTransactionsList != c.userTransactionsList;
                       },
                       builder: (context, state) {
-                        return state.userTransactionsList?.isEmpty ??
-                                true || state.userTransactionsList == null
+                        return state.userTransactionsList?.isEmpty ?? true
                             ? const Center(child: Text('No transactions yet'))
                             : TransactionsList(
                                 transactions: state.userTransactionsList ?? [],
@@ -114,33 +113,33 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 /// Mock transaction data for demo
-final _mockTransactions = [
-  const TransactionData(
-    title: 'Starbucks',
-    subtitle: 'Coffee • 10:30 AM',
-    amount: '-\$5.50',
-    icon: Icons.local_cafe,
-    isPositive: false,
-  ),
-  const TransactionData(
-    title: 'Upwork Inc.',
-    subtitle: 'Freelance Payout • 9:15 AM',
-    amount: '+\$450.00',
-    icon: Icons.payments,
-    isPositive: true,
-  ),
-  const TransactionData(
-    title: 'Uber',
-    subtitle: 'Transport • Yesterday',
-    amount: '-\$12.30',
-    icon: Icons.local_taxi,
-    isPositive: false,
-  ),
-  const TransactionData(
-    title: 'Whole Foods',
-    subtitle: 'Groceries • Yesterday',
-    amount: '-\$84.15',
-    icon: Icons.shopping_cart,
-    isPositive: false,
-  ),
-];
+// final _mockTransactions = [
+//   const TransactionData(
+//     title: 'Starbucks',
+//     subtitle: 'Coffee • 10:30 AM',
+//     amount: '-\$5.50',
+//     icon: Icons.local_cafe,
+//     isPositive: false,
+//   ),
+//   const TransactionData(
+//     title: 'Upwork Inc.',
+//     subtitle: 'Freelance Payout • 9:15 AM',
+//     amount: '+\$450.00',
+//     icon: Icons.payments,
+//     isPositive: true,
+//   ),
+//   const TransactionData(
+//     title: 'Uber',
+//     subtitle: 'Transport • Yesterday',
+//     amount: '-\$12.30',
+//     icon: Icons.local_taxi,
+//     isPositive: false,
+//   ),
+//   const TransactionData(
+//     title: 'Whole Foods',
+//     subtitle: 'Groceries • Yesterday',
+//     amount: '-\$84.15',
+//     icon: Icons.shopping_cart,
+//     isPositive: false,
+//   ),
+// ];

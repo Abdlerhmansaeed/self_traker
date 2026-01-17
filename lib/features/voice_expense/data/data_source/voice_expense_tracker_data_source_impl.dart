@@ -73,14 +73,14 @@ class VoiceExpenseTrackerDataSourceImpl
   VoiceExpenseTrackerDataSourceImpl() {
     _initializeModel();
   }
-
+  
   late final GenerativeModel _model;
 
   /// Initializes the Gemini model with system instructions.
   void _initializeModel() {
     _model = GenerativeModel(
       model: 'gemini-2.0-flash-lite',
-      apiKey: '',
+      apiKey: 'AIzaSyCKq9EfhZyVhbzq53FgTGyPywFC1OsNV1o',
       systemInstruction: Content.system(_buildSystemInstruction()),
       generationConfig: GenerationConfig(
         responseMimeType: 'application/json',

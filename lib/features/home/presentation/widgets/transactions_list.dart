@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:resposive_xx/responsive_x.dart';
 
-import '../../../../core/theme/app_colors.dart';
+// import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'transaction_item.dart';
@@ -33,16 +33,21 @@ class TransactionsList extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              GestureDetector(
-                onTap: onFilterTap,
-                child: Container(
-                  width: 32.r,
-                  height: 32.r,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.transparent,
+              Tooltip(
+                message: 'Add New Transaction',
+                child: GestureDetector(
+                  onTap: onFilterTap,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.transparent,
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      size: 30.r,
+                      // color: AppColors.textSub,
+                    ),
                   ),
-                  child: Icon(Icons.tune, size: 20.r, color: AppColors.textSub),
                 ),
               ),
             ],

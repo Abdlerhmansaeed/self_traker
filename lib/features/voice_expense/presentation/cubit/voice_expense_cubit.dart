@@ -207,18 +207,31 @@ class VoiceExpenseCubit extends Cubit<VoiceExpenseState> {
 
   /// Confirm all transactions
   void confirmTransaction() {
-    // TODO: Save all transactions to repository still 
+    // TODO: Save all transactions to repository still
     final homeCubit = getIt<HomeCubit>();
-    homeCubit.updateUserBalance(amount: state.totalAmount);
+    final userBalanceUpdated =
+        state.totalAmount + homeCubit.state.totalUserBalance;
+    homeCubit.updateUserBalance(amount: userBalanceUpdated);
 
-    homeCubit.updateUserTransactionsList(
-      userTransactionData: TransactionData(
-        amount: state.totalAmount.toString(),
-        title: state.parsedTransaction?.note ?? '',
-        // isPositive: state.parsedTransaction.,
-        subtitle: state.parsedTransaction?.category ?? 'No Sub',
-      ),
-    );
+    for (var transaction in state.parsedTransactions) {
+      homeCubit.updateUserTransactionsList(
+        userTransactionData: TransactionData(
+          amount: transaction.amount.toString(),
+          title: transaction.note ?? 'No Title',
+          // isPositive: state.parsedTransaction.,
+          subtitle: transaction.category ?? 'No Sub',
+        ),
+      );
+    }
+
+    // homeCubit.updateUserTransactionsList(
+    //   userTransactionData: TransactionData(
+    //     amount: state.totalAmount.toString(),
+    //     title: state.parsedTransaction?.note ?? '',
+    //     // isPositive: state.parsedTransaction.,
+    //     subtitle: state.parsedTransaction?.category ?? 'No Sub' ,
+    //   ),
+    // );
 
     log(
       'Confirmed ${state.transactionCount} transaction(s) totaling ${state.totalAmount} ${state.primaryCurrency}',

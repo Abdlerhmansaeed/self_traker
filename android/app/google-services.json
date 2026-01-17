@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "368421980398",
+    "project_id": "moneytraker-d51b5",
+    "storage_bucket": "moneytraker-d51b5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:368421980398:android:d02d732ead18237f194bff",
+        "android_client_info": {
+          "package_name": "com.example.self_traker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "368421980398-814e9gfa1945ijq6177vnls7ou8phnl7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCG-xXCl4gT33cM-jAAJq8eygZ8nzHtuvU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "368421980398-814e9gfa1945ijq6177vnls7ou8phnl7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

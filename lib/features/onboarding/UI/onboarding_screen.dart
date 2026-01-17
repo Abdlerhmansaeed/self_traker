@@ -76,7 +76,17 @@ class OnboardingScreen extends StatelessWidget {
                     label: 'Continue with Google',
                     isDark: false,
                     onTap: () {
-                      // TODO: Implement Google Sign In
+                      context.goNamed(RoutesNames.main);
+                    },
+                  ),
+                  SizedBox(height: AppDimensions.spacingSm + 4.h),
+                  // Email Button
+                  SocialAuthButton(
+                    icon: Icons.mail_outline,
+                    label: 'Continue with Email',
+                    isDark: false,
+                    onTap: () {
+                      context.pushNamed(RoutesNames.login);
                     },
                   ),
                   SizedBox(height: AppDimensions.spacingLg),
