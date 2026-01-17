@@ -80,7 +80,7 @@ class VoiceExpenseTrackerDataSourceImpl
   void _initializeModel() {
     _model = GenerativeModel(
       model: 'gemini-2.0-flash-lite',
-      apiKey: 'AIzaSyCKq9EfhZyVhbzq53FgTGyPywFC1OsNV1o',
+      apiKey: '',
       systemInstruction: Content.system(_buildSystemInstruction()),
       generationConfig: GenerationConfig(
         responseMimeType: 'application/json',
