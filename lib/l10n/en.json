@@ -1,0 +1,13 @@
+{
+  "auth_error_invalid_credentials": "Invalid email or password. Please try again.",
+  "auth_error_email_exists": "An account with this email already exists.",
+  "auth_error_email_exists_google": "This email is registered with Google. Please sign in with Google.",
+  "auth_error_weak_password": "Password must be at least 8 characters with uppercase, lowercase, and number.",
+  "auth_error_rate_limited": "Too many attempts. Please wait {countdown} seconds.",
+  "auth_error_network": "Network error. Please check your connection and try again.",
+  "auth_error_account_disabled": "This account has been disabled. Contact support for help.",
+  "auth_error_email_not_verified": "Please verify your email to access all features.",
+  "auth_success_password_reset": "Password reset email sent. Check your inbox.",
+  "auth_success_verification_sent": "Verification email sent. Check your inbox.",
+  "auth_error_unknown": "An unexpected error occurred. Please try again."
+}
