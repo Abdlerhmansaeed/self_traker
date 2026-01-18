@@ -6,7 +6,7 @@ extension AuthFailureLocalization on AuthFailure {
   String getLocalizedMessage(BuildContext context, {int? countdown}) {
     final locale = Localizations.localeOf(context);
     final isArabic = locale.languageCode == 'ar';
-    
+
     switch (getLocalizedMessageKey()) {
       case 'auth_error_invalid_credentials':
         return isArabic

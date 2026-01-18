@@ -80,9 +80,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<AuthFailure, void>> sendPasswordResetEmail(
-    String email,
-  ) async {
+  Future<Either<AuthFailure, void>> sendPasswordResetEmail(String email) async {
     try {
       await _remoteDataSource.sendPasswordResetEmail(email);
       return const Right(null);
@@ -113,7 +111,9 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Right(null);
       }
 
-      final userModel = await _remoteDataSource.getUserDocument(firebaseUser.uid);
+      final userModel = await _remoteDataSource.getUserDocument(
+        firebaseUser.uid,
+      );
       return Right(userModel?.toEntity());
     } on FirebaseAuthException catch (e) {
       return Left(FirebaseAuthErrorMapper.mapFirebaseAuthException(e));
@@ -128,7 +128,9 @@ class AuthRepositoryImpl implements AuthRepository {
       if (firebaseUser == null) {
         return null;
       }
-      final userModel = await _remoteDataSource.getUserDocument(firebaseUser.uid);
+      final userModel = await _remoteDataSource.getUserDocument(
+        firebaseUser.uid,
+      );
       return userModel?.toEntity();
     });
   }

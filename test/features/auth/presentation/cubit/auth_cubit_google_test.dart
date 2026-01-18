@@ -79,30 +79,35 @@ void main() {
       metadata: UserMetadata(),
     );
 
-    test('emits [AuthLoading, AuthAuthenticated] when Google sign-in succeeds', () async {
-      // Arrange
-      when(() => mockRepository.signInWithGoogle())
-          .thenAnswer((_) async => Right(testGoogleUser));
+    test(
+      'emits [AuthLoading, AuthAuthenticated] when Google sign-in succeeds',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signInWithGoogle(),
+        ).thenAnswer((_) async => Right(testGoogleUser));
 
-      // Assert first - set up expectation before act
-      final futureStates = authCubit.stream.take(2).toList();
+        // Assert first - set up expectation before act
+        final futureStates = authCubit.stream.take(2).toList();
 
-      // Act
-      await authCubit.signInWithGoogle();
+        // Act
+        await authCubit.signInWithGoogle();
 
-      // Assert
-      final states = await futureStates;
-      expect(states[0], isA<AuthLoading>());
-      expect(states[1], isA<AuthAuthenticated>());
-      expect((states[1] as AuthAuthenticated).user.email, testEmail);
-      expect((states[1] as AuthAuthenticated).user.emailVerified, true);
-      expect((states[1] as AuthAuthenticated).user.photoURL, isNotNull);
-    });
+        // Assert
+        final states = await futureStates;
+        expect(states[0], isA<AuthLoading>());
+        expect(states[1], isA<AuthAuthenticated>());
+        expect((states[1] as AuthAuthenticated).user.email, testEmail);
+        expect((states[1] as AuthAuthenticated).user.emailVerified, true);
+        expect((states[1] as AuthAuthenticated).user.photoURL, isNotNull);
+      },
+    );
 
     test('does not emit error when user cancels Google sign-in', () async {
       // Arrange
-      when(() => mockRepository.signInWithGoogle())
-          .thenAnswer((_) async => Left(const CancelledFailure()));
+      when(
+        () => mockRepository.signInWithGoogle(),
+      ).thenAnswer((_) async => Left(const CancelledFailure()));
 
       // Assert first - only expect loading state
       final futureStates = authCubit.stream.take(1).toList();
@@ -118,58 +123,71 @@ void main() {
       expect(authCubit.state, isNot(isA<AuthError>()));
     });
 
-    test('emits [AuthLoading, AuthError] when Google sign-in fails with NetworkErrorFailure', () async {
-      // Arrange
-      when(() => mockRepository.signInWithGoogle())
-          .thenAnswer((_) async => Left(const NetworkErrorFailure()));
+    test(
+      'emits [AuthLoading, AuthError] when Google sign-in fails with NetworkErrorFailure',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signInWithGoogle(),
+        ).thenAnswer((_) async => Left(const NetworkErrorFailure()));
 
-      // Assert first
-      final futureStates = authCubit.stream.take(2).toList();
+        // Assert first
+        final futureStates = authCubit.stream.take(2).toList();
 
-      // Act
-      await authCubit.signInWithGoogle();
+        // Act
+        await authCubit.signInWithGoogle();
 
-      // Assert
-      final states = await futureStates;
-      expect(states[0], isA<AuthLoading>());
-      expect(states[1], isA<AuthError>());
-      expect((states[1] as AuthError).failure, isA<NetworkErrorFailure>());
-    });
+        // Assert
+        final states = await futureStates;
+        expect(states[0], isA<AuthLoading>());
+        expect(states[1], isA<AuthError>());
+        expect((states[1] as AuthError).failure, isA<NetworkErrorFailure>());
+      },
+    );
 
-    test('emits [AuthLoading, AuthError] when Google sign-in fails with AccountDisabledFailure', () async {
-      // Arrange
-      when(() => mockRepository.signInWithGoogle())
-          .thenAnswer((_) async => Left(const AccountDisabledFailure()));
+    test(
+      'emits [AuthLoading, AuthError] when Google sign-in fails with AccountDisabledFailure',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signInWithGoogle(),
+        ).thenAnswer((_) async => Left(const AccountDisabledFailure()));
 
-      // Assert first
-      final futureStates = authCubit.stream.take(2).toList();
+        // Assert first
+        final futureStates = authCubit.stream.take(2).toList();
 
-      // Act
-      await authCubit.signInWithGoogle();
+        // Act
+        await authCubit.signInWithGoogle();
 
-      // Assert
-      final states = await futureStates;
-      expect(states[0], isA<AuthLoading>());
-      expect(states[1], isA<AuthError>());
-      expect((states[1] as AuthError).failure, isA<AccountDisabledFailure>());
-    });
+        // Assert
+        final states = await futureStates;
+        expect(states[0], isA<AuthLoading>());
+        expect(states[1], isA<AuthError>());
+        expect((states[1] as AuthError).failure, isA<AccountDisabledFailure>());
+      },
+    );
 
-    test('emits [AuthLoading, AuthError] when Google sign-in fails with UnknownAuthFailure', () async {
-      // Arrange
-      when(() => mockRepository.signInWithGoogle())
-          .thenAnswer((_) async => Left(const UnknownAuthFailure(message: 'Unexpected error')));
+    test(
+      'emits [AuthLoading, AuthError] when Google sign-in fails with UnknownAuthFailure',
+      () async {
+        // Arrange
+        when(() => mockRepository.signInWithGoogle()).thenAnswer(
+          (_) async =>
+              Left(const UnknownAuthFailure(message: 'Unexpected error')),
+        );
 
-      // Assert first
-      final futureStates = authCubit.stream.take(2).toList();
+        // Assert first
+        final futureStates = authCubit.stream.take(2).toList();
 
-      // Act
-      await authCubit.signInWithGoogle();
+        // Act
+        await authCubit.signInWithGoogle();
 
-      // Assert
-      final states = await futureStates;
-      expect(states[0], isA<AuthLoading>());
-      expect(states[1], isA<AuthError>());
-      expect((states[1] as AuthError).failure, isA<UnknownAuthFailure>());
-    });
+        // Assert
+        final states = await futureStates;
+        expect(states[0], isA<AuthLoading>());
+        expect(states[1], isA<AuthError>());
+        expect((states[1] as AuthError).failure, isA<UnknownAuthFailure>());
+      },
+    );
   });
 }

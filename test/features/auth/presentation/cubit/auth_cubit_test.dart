@@ -99,170 +99,213 @@ void main() {
       metadata: UserMetadata(),
     );
 
-    test('emits [AuthLoading, EmailVerificationRequired] when signup succeeds with unverified email', () async {
-      // Arrange
-      when(() => mockRepository.signUpWithEmail(
-        email: any(named: 'email'),
-        password: any(named: 'password'),
-        displayName: any(named: 'displayName'),
-      )).thenAnswer((_) async => Right(testUser));
+    test(
+      'emits [AuthLoading, EmailVerificationRequired] when signup succeeds with unverified email',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signUpWithEmail(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            displayName: any(named: 'displayName'),
+          ),
+        ).thenAnswer((_) async => Right(testUser));
 
-      // Act
-      authCubit.signUpWithEmail(
-        email: testEmail,
-        password: testPassword,
-        displayName: testDisplayName,
-      );
+        // Act
+        authCubit.signUpWithEmail(
+          email: testEmail,
+          password: testPassword,
+          displayName: testDisplayName,
+        );
 
-      // Assert
-      await expectLater(
-        authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<EmailVerificationRequired>()
-              .having((s) => s.user.email, 'email', testEmail)
-              .having((s) => s.user.emailVerified, 'emailVerified', false),
-        ]),
-      );
-    });
+        // Assert
+        await expectLater(
+          authCubit.stream,
+          emitsInOrder([
+            isA<AuthLoading>(),
+            isA<EmailVerificationRequired>()
+                .having((s) => s.user.email, 'email', testEmail)
+                .having((s) => s.user.emailVerified, 'emailVerified', false),
+          ]),
+        );
+      },
+    );
 
-    test('emits [AuthLoading, AuthAuthenticated] when signup succeeds with verified email', () async {
-      // Arrange
-      when(() => mockRepository.signUpWithEmail(
-        email: any(named: 'email'),
-        password: any(named: 'password'),
-        displayName: any(named: 'displayName'),
-      )).thenAnswer((_) async => Right(verifiedTestUser));
+    test(
+      'emits [AuthLoading, AuthAuthenticated] when signup succeeds with verified email',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signUpWithEmail(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            displayName: any(named: 'displayName'),
+          ),
+        ).thenAnswer((_) async => Right(verifiedTestUser));
 
-      // Act
-      authCubit.signUpWithEmail(
-        email: testEmail,
-        password: testPassword,
-        displayName: testDisplayName,
-      );
+        // Act
+        authCubit.signUpWithEmail(
+          email: testEmail,
+          password: testPassword,
+          displayName: testDisplayName,
+        );
 
-      // Assert
-      await expectLater(
-        authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<AuthAuthenticated>()
-              .having((s) => s.user.email, 'email', testEmail)
-              .having((s) => s.user.emailVerified, 'emailVerified', true),
-        ]),
-      );
-    });
+        // Assert
+        await expectLater(
+          authCubit.stream,
+          emitsInOrder([
+            isA<AuthLoading>(),
+            isA<AuthAuthenticated>()
+                .having((s) => s.user.email, 'email', testEmail)
+                .having((s) => s.user.emailVerified, 'emailVerified', true),
+          ]),
+        );
+      },
+    );
 
-    test('emits [AuthLoading, AuthError] when signup fails with EmailAlreadyInUseFailure', () async {
-      // Arrange
-      when(() => mockRepository.signUpWithEmail(
-        email: any(named: 'email'),
-        password: any(named: 'password'),
-        displayName: any(named: 'displayName'),
-      )).thenAnswer((_) async => Left(const EmailAlreadyInUseFailure()));
+    test(
+      'emits [AuthLoading, AuthError] when signup fails with EmailAlreadyInUseFailure',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signUpWithEmail(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            displayName: any(named: 'displayName'),
+          ),
+        ).thenAnswer((_) async => Left(const EmailAlreadyInUseFailure()));
 
-      // Act
-      authCubit.signUpWithEmail(
-        email: testEmail,
-        password: testPassword,
-        displayName: testDisplayName,
-      );
+        // Act
+        authCubit.signUpWithEmail(
+          email: testEmail,
+          password: testPassword,
+          displayName: testDisplayName,
+        );
 
-      // Assert
-      await expectLater(
-        authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<AuthError>()
-              .having((s) => s.failure, 'failure', isA<EmailAlreadyInUseFailure>()),
-        ]),
-      );
-    });
+        // Assert
+        await expectLater(
+          authCubit.stream,
+          emitsInOrder([
+            isA<AuthLoading>(),
+            isA<AuthError>().having(
+              (s) => s.failure,
+              'failure',
+              isA<EmailAlreadyInUseFailure>(),
+            ),
+          ]),
+        );
+      },
+    );
 
-    test('emits [AuthLoading, AuthError] when signup fails with EmailExistsWithGoogleFailure', () async {
-      // Arrange
-      when(() => mockRepository.signUpWithEmail(
-        email: any(named: 'email'),
-        password: any(named: 'password'),
-        displayName: any(named: 'displayName'),
-      )).thenAnswer((_) async => Left(const EmailExistsWithGoogleFailure()));
+    test(
+      'emits [AuthLoading, AuthError] when signup fails with EmailExistsWithGoogleFailure',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signUpWithEmail(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            displayName: any(named: 'displayName'),
+          ),
+        ).thenAnswer((_) async => Left(const EmailExistsWithGoogleFailure()));
 
-      // Act
-      authCubit.signUpWithEmail(
-        email: testEmail,
-        password: testPassword,
-        displayName: testDisplayName,
-      );
+        // Act
+        authCubit.signUpWithEmail(
+          email: testEmail,
+          password: testPassword,
+          displayName: testDisplayName,
+        );
 
-      // Assert
-      await expectLater(
-        authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<AuthError>()
-              .having((s) => s.failure, 'failure', isA<EmailExistsWithGoogleFailure>()),
-        ]),
-      );
-    });
+        // Assert
+        await expectLater(
+          authCubit.stream,
+          emitsInOrder([
+            isA<AuthLoading>(),
+            isA<AuthError>().having(
+              (s) => s.failure,
+              'failure',
+              isA<EmailExistsWithGoogleFailure>(),
+            ),
+          ]),
+        );
+      },
+    );
 
-    test('emits [AuthLoading, AuthError] when signup fails with WeakPasswordFailure', () async {
-      // Arrange
-      when(() => mockRepository.signUpWithEmail(
-        email: any(named: 'email'),
-        password: any(named: 'password'),
-        displayName: any(named: 'displayName'),
-      )).thenAnswer((_) async => Left(const WeakPasswordFailure()));
+    test(
+      'emits [AuthLoading, AuthError] when signup fails with WeakPasswordFailure',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signUpWithEmail(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            displayName: any(named: 'displayName'),
+          ),
+        ).thenAnswer((_) async => Left(const WeakPasswordFailure()));
 
-      // Act
-      authCubit.signUpWithEmail(
-        email: testEmail,
-        password: 'weak',
-        displayName: testDisplayName,
-      );
+        // Act
+        authCubit.signUpWithEmail(
+          email: testEmail,
+          password: 'weak',
+          displayName: testDisplayName,
+        );
 
-      // Assert
-      await expectLater(
-        authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<AuthError>()
-              .having((s) => s.failure, 'failure', isA<WeakPasswordFailure>()),
-        ]),
-      );
-    });
+        // Assert
+        await expectLater(
+          authCubit.stream,
+          emitsInOrder([
+            isA<AuthLoading>(),
+            isA<AuthError>().having(
+              (s) => s.failure,
+              'failure',
+              isA<WeakPasswordFailure>(),
+            ),
+          ]),
+        );
+      },
+    );
 
-    test('emits [AuthLoading, AuthError] when signup fails with NetworkErrorFailure', () async {
-      // Arrange
-      when(() => mockRepository.signUpWithEmail(
-        email: any(named: 'email'),
-        password: any(named: 'password'),
-        displayName: any(named: 'displayName'),
-      )).thenAnswer((_) async => Left(const NetworkErrorFailure()));
+    test(
+      'emits [AuthLoading, AuthError] when signup fails with NetworkErrorFailure',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signUpWithEmail(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            displayName: any(named: 'displayName'),
+          ),
+        ).thenAnswer((_) async => Left(const NetworkErrorFailure()));
 
-      // Act
-      authCubit.signUpWithEmail(
-        email: testEmail,
-        password: testPassword,
-        displayName: testDisplayName,
-      );
+        // Act
+        authCubit.signUpWithEmail(
+          email: testEmail,
+          password: testPassword,
+          displayName: testDisplayName,
+        );
 
-      // Assert
-      await expectLater(
-        authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<AuthError>()
-              .having((s) => s.failure, 'failure', isA<NetworkErrorFailure>()),
-        ]),
-      );
-    });
+        // Assert
+        await expectLater(
+          authCubit.stream,
+          emitsInOrder([
+            isA<AuthLoading>(),
+            isA<AuthError>().having(
+              (s) => s.failure,
+              'failure',
+              isA<NetworkErrorFailure>(),
+            ),
+          ]),
+        );
+      },
+    );
   });
 
   group('AuthCubit - Send Verification Email', () {
     test('keeps current state when sendVerificationEmail succeeds', () async {
       // Arrange
-      when(() => mockRepository.sendVerificationEmail())
-          .thenAnswer((_) async => const Right(null));
+      when(
+        () => mockRepository.sendVerificationEmail(),
+      ).thenAnswer((_) async => const Right(null));
 
       // Act
       authCubit.sendVerificationEmail();
@@ -278,8 +321,9 @@ void main() {
 
     test('emits AuthError when sendVerificationEmail fails', () async {
       // Arrange
-      when(() => mockRepository.sendVerificationEmail())
-          .thenAnswer((_) async => Left(const NetworkErrorFailure()));
+      when(
+        () => mockRepository.sendVerificationEmail(),
+      ).thenAnswer((_) async => Left(const NetworkErrorFailure()));
 
       // Act
       authCubit.sendVerificationEmail();
@@ -288,8 +332,11 @@ void main() {
       await expectLater(
         authCubit.stream,
         emitsInOrder([
-          isA<AuthError>()
-              .having((s) => s.failure, 'failure', isA<NetworkErrorFailure>()),
+          isA<AuthError>().having(
+            (s) => s.failure,
+            'failure',
+            isA<NetworkErrorFailure>(),
+          ),
         ]),
       );
     });

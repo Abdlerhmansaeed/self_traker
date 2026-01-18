@@ -133,7 +133,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                      if (state is AuthRateLimited) SizedBox(height: AppDimensions.spacingMd),
+                      if (state is AuthRateLimited)
+                        SizedBox(height: AppDimensions.spacingMd),
                       // Email Field
                       AuthFormField(
                         controller: _emailController,
@@ -168,8 +169,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                               GestureDetector(
-                                onTap: () => context
-                                    .pushNamed(RoutesNames.forgotPassword),
+                                onTap: () => context.pushNamed(
+                                  RoutesNames.forgotPassword,
+                                ),
                                 child: Text(
                                   'Forgot Password?',
                                   style: AppTextStyles.bodySmall.copyWith(

@@ -11,7 +11,7 @@ import 'package:self_traker/features/auth/domain/usecases/sign_up_with_email_use
 // Mock repository
 class MockAuthRepository implements AuthRepository {
   Either<AuthFailure, UserEntity>? signUpResult;
-  
+
   @override
   Future<Either<AuthFailure, UserEntity>> signUpWithEmail({
     required String email,
@@ -106,14 +106,11 @@ void main() {
 
       // Assert
       expect(result.isRight(), true);
-      result.fold(
-        (failure) => fail('Should not return failure'),
-        (user) {
-          expect(user.email, testEmail);
-          expect(user.displayName, testDisplayName);
-          expect(user.emailVerified, false);
-        },
-      );
+      result.fold((failure) => fail('Should not return failure'), (user) {
+        expect(user.email, testEmail);
+        expect(user.displayName, testDisplayName);
+        expect(user.emailVerified, false);
+      });
     });
 
     test('should return EmailAlreadyInUseFailure when email exists', () async {
@@ -135,24 +132,29 @@ void main() {
       );
     });
 
-    test('should return EmailExistsWithGoogleFailure when email is linked to Google', () async {
-      // Arrange
-      mockRepository.signUpResult = Left(const EmailExistsWithGoogleFailure());
+    test(
+      'should return EmailExistsWithGoogleFailure when email is linked to Google',
+      () async {
+        // Arrange
+        mockRepository.signUpResult = Left(
+          const EmailExistsWithGoogleFailure(),
+        );
 
-      // Act
-      final result = await useCase(
-        email: testEmail,
-        password: testPassword,
-        displayName: testDisplayName,
-      );
+        // Act
+        final result = await useCase(
+          email: testEmail,
+          password: testPassword,
+          displayName: testDisplayName,
+        );
 
-      // Assert
-      expect(result.isLeft(), true);
-      result.fold(
-        (failure) => expect(failure, isA<EmailExistsWithGoogleFailure>()),
-        (user) => fail('Should not return user'),
-      );
-    });
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold(
+          (failure) => expect(failure, isA<EmailExistsWithGoogleFailure>()),
+          (user) => fail('Should not return user'),
+        );
+      },
+    );
 
     test('should return WeakPasswordFailure when password is weak', () async {
       // Arrange

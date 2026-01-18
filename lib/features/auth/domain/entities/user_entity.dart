@@ -74,29 +74,28 @@ class UserEntity extends Equatable {
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
       totalExpenses: totalExpenses ?? this.totalExpenses,
       emailVerified: emailVerified ?? this.emailVerified,
-      notificationSettings:
-          notificationSettings ?? this.notificationSettings,
+      notificationSettings: notificationSettings ?? this.notificationSettings,
       metadata: metadata ?? this.metadata,
     );
   }
 
   @override
   List<Object?> get props => [
-        id,
-        email,
-        displayName,
-        photoURL,
-        phoneNumber,
-        preferredCurrency,
-        preferredLanguage,
-        subscriptionStatus,
-        subscriptionExpiration,
-        monthlyBudget,
-        createdAt,
-        lastLoginAt,
-        totalExpenses,
-        emailVerified,
-        notificationSettings,
-        metadata,
-      ];
+    id,
+    email,
+    displayName,
+    photoURL,
+    phoneNumber,
+    preferredCurrency,
+    preferredLanguage,
+    subscriptionStatus,
+    subscriptionExpiration,
+    monthlyBudget,
+    createdAt,
+    lastLoginAt,
+    totalExpenses,
+    emailVerified,
+    notificationSettings,
+    metadata,
+  ];
 }

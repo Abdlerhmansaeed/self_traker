@@ -11,7 +11,7 @@ import 'package:self_traker/features/auth/domain/usecases/sign_in_with_google_us
 // Mock repository
 class MockAuthRepository implements AuthRepository {
   Either<AuthFailure, UserEntity>? signInWithGoogleResult;
-  
+
   @override
   Future<Either<AuthFailure, UserEntity>> signInWithGoogle() async {
     return signInWithGoogleResult ?? Left(const UnknownAuthFailure());
@@ -92,40 +92,43 @@ void main() {
       metadata: UserMetadata(),
     );
 
-    test('should return UserEntity when Google sign-in is successful', () async {
-      // Arrange
-      mockRepository.signInWithGoogleResult = Right(testUser);
+    test(
+      'should return UserEntity when Google sign-in is successful',
+      () async {
+        // Arrange
+        mockRepository.signInWithGoogleResult = Right(testUser);
 
-      // Act
-      final result = await useCase();
+        // Act
+        final result = await useCase();
 
-      // Assert
-      expect(result.isRight(), true);
-      result.fold(
-        (failure) => fail('Should not return failure'),
-        (user) {
+        // Assert
+        expect(result.isRight(), true);
+        result.fold((failure) => fail('Should not return failure'), (user) {
           expect(user.email, testEmail);
           expect(user.displayName, testDisplayName);
           expect(user.emailVerified, true);
           expect(user.photoURL, isNotNull);
-        },
-      );
-    });
+        });
+      },
+    );
 
-    test('should return CancelledFailure when user cancels Google sign-in', () async {
-      // Arrange
-      mockRepository.signInWithGoogleResult = Left(const CancelledFailure());
+    test(
+      'should return CancelledFailure when user cancels Google sign-in',
+      () async {
+        // Arrange
+        mockRepository.signInWithGoogleResult = Left(const CancelledFailure());
 
-      // Act
-      final result = await useCase();
+        // Act
+        final result = await useCase();
 
-      // Assert
-      expect(result.isLeft(), true);
-      result.fold(
-        (failure) => expect(failure, isA<CancelledFailure>()),
-        (user) => fail('Should not return user'),
-      );
-    });
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold(
+          (failure) => expect(failure, isA<CancelledFailure>()),
+          (user) => fail('Should not return user'),
+        );
+      },
+    );
 
     test('should return NetworkErrorFailure when network fails', () async {
       // Arrange
@@ -142,34 +145,44 @@ void main() {
       );
     });
 
-    test('should return AccountDisabledFailure when account is disabled', () async {
-      // Arrange
-      mockRepository.signInWithGoogleResult = Left(const AccountDisabledFailure());
+    test(
+      'should return AccountDisabledFailure when account is disabled',
+      () async {
+        // Arrange
+        mockRepository.signInWithGoogleResult = Left(
+          const AccountDisabledFailure(),
+        );
 
-      // Act
-      final result = await useCase();
+        // Act
+        final result = await useCase();
 
-      // Assert
-      expect(result.isLeft(), true);
-      result.fold(
-        (failure) => expect(failure, isA<AccountDisabledFailure>()),
-        (user) => fail('Should not return user'),
-      );
-    });
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold(
+          (failure) => expect(failure, isA<AccountDisabledFailure>()),
+          (user) => fail('Should not return user'),
+        );
+      },
+    );
 
-    test('should return UnknownAuthFailure when an unexpected error occurs', () async {
-      // Arrange
-      mockRepository.signInWithGoogleResult = Left(const UnknownAuthFailure(message: 'Unexpected error'));
+    test(
+      'should return UnknownAuthFailure when an unexpected error occurs',
+      () async {
+        // Arrange
+        mockRepository.signInWithGoogleResult = Left(
+          const UnknownAuthFailure(message: 'Unexpected error'),
+        );
 
-      // Act
-      final result = await useCase();
+        // Act
+        final result = await useCase();
 
-      // Assert
-      expect(result.isLeft(), true);
-      result.fold(
-        (failure) => expect(failure, isA<UnknownAuthFailure>()),
-        (user) => fail('Should not return user'),
-      );
-    });
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold(
+          (failure) => expect(failure, isA<UnknownAuthFailure>()),
+          (user) => fail('Should not return user'),
+        );
+      },
+    );
   });
 }

@@ -101,13 +101,12 @@ class UserModel {
       phoneNumber: map['phoneNumber'] as String?,
       preferredCurrency: map['preferredCurrency'] as String? ?? 'EGP',
       preferredLanguage: map['preferredLanguage'] as String? ?? 'en',
-      subscriptionStatus:
-          map['subscriptionStatus'] as String? ?? 'free',
+      subscriptionStatus: map['subscriptionStatus'] as String? ?? 'free',
       subscriptionExpiration: map['subscriptionExpiration'] is Timestamp
           ? (map['subscriptionExpiration'] as Timestamp).toDate()
           : (map['subscriptionExpiration'] != null
-              ? DateTime.parse(map['subscriptionExpiration'].toString())
-              : null),
+                ? DateTime.parse(map['subscriptionExpiration'].toString())
+                : null),
       monthlyBudget: (map['monthlyBudget'] as num?)?.toDouble(),
       createdAt: map['createdAt'] is Timestamp
           ? (map['createdAt'] as Timestamp).toDate()
@@ -117,15 +116,13 @@ class UserModel {
           : DateTime.parse(map['lastLoginAt'].toString()),
       totalExpenses: map['totalExpenses'] as int? ?? 0,
       emailVerified: map['emailVerified'] as bool? ?? false,
-      notificationSettings:
-          Map<String, dynamic>.from(map['notificationSettings'] as Map? ?? {
-        'budgetAlerts': true,
-        'weeklyReports': true,
-        'tips': true,
-      }),
-      metadata: Map<String, dynamic>.from(map['metadata'] as Map? ?? {
-        'onboardingCompleted': false,
-      }),
+      notificationSettings: Map<String, dynamic>.from(
+        map['notificationSettings'] as Map? ??
+            {'budgetAlerts': true, 'weeklyReports': true, 'tips': true},
+      ),
+      metadata: Map<String, dynamic>.from(
+        map['metadata'] as Map? ?? {'onboardingCompleted': false},
+      ),
     );
   }
 

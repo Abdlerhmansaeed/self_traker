@@ -35,8 +35,8 @@ class UserMetadata {
       firstExpenseDate: map['firstExpenseDate'] is DateTime
           ? map['firstExpenseDate']
           : (map['firstExpenseDate'] != null
-              ? DateTime.parse(map['firstExpenseDate'].toString())
-              : null),
+                ? DateTime.parse(map['firstExpenseDate'].toString())
+                : null),
       appVersion: map['appVersion'] as String?,
     );
   }

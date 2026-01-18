@@ -8,7 +8,7 @@ import 'package:self_traker/features/auth/domain/entities/user_entity.dart';
 // Mock repository
 class MockAuthRepository implements AuthRepository {
   Either<AuthFailure, void>? sendVerificationResult;
-  
+
   @override
   Future<Either<AuthFailure, void>> sendVerificationEmail() async {
     return sendVerificationResult ?? Left(const UnknownAuthFailure());
@@ -97,34 +97,44 @@ void main() {
       );
     });
 
-    test('should return UnknownAuthFailure when an unexpected error occurs', () async {
-      // Arrange
-      mockRepository.sendVerificationResult = Left(const UnknownAuthFailure());
+    test(
+      'should return UnknownAuthFailure when an unexpected error occurs',
+      () async {
+        // Arrange
+        mockRepository.sendVerificationResult = Left(
+          const UnknownAuthFailure(),
+        );
 
-      // Act
-      final result = await useCase();
+        // Act
+        final result = await useCase();
 
-      // Assert
-      expect(result.isLeft(), true);
-      result.fold(
-        (failure) => expect(failure, isA<UnknownAuthFailure>()),
-        (_) => fail('Should not return success'),
-      );
-    });
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold(
+          (failure) => expect(failure, isA<UnknownAuthFailure>()),
+          (_) => fail('Should not return success'),
+        );
+      },
+    );
 
-    test('should return EmailNotVerifiedFailure when email is already verified', () async {
-      // Arrange
-      mockRepository.sendVerificationResult = Left(const EmailNotVerifiedFailure());
+    test(
+      'should return EmailNotVerifiedFailure when email is already verified',
+      () async {
+        // Arrange
+        mockRepository.sendVerificationResult = Left(
+          const EmailNotVerifiedFailure(),
+        );
 
-      // Act
-      final result = await useCase();
+        // Act
+        final result = await useCase();
 
-      // Assert
-      expect(result.isLeft(), true);
-      result.fold(
-        (failure) => expect(failure, isA<EmailNotVerifiedFailure>()),
-        (_) => fail('Should not return success'),
-      );
-    });
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold(
+          (failure) => expect(failure, isA<EmailNotVerifiedFailure>()),
+          (_) => fail('Should not return success'),
+        );
+      },
+    );
   });
 }

@@ -51,9 +51,7 @@ abstract interface class AuthRemoteDataSource {
   });
 
   /// Create a new usage document in Firestore
-  Future<void> createUsageDocument({
-    required String userId,
-  });
+  Future<void> createUsageDocument({required String userId});
 
   /// Get user document from Firestore
   Future<UserModel?> getUserDocument(String userId);

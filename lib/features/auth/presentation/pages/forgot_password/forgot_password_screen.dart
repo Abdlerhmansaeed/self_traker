@@ -34,7 +34,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   void _handleSendResetLink(BuildContext context) {
     if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthCubit>().sendPasswordResetEmail(_emailController.text.trim());
+      context.read<AuthCubit>().sendPasswordResetEmail(
+        _emailController.text.trim(),
+      );
     }
   }
 
@@ -59,7 +61,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           // Show generic message (security: don't reveal if email exists)
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('If this email is registered, a reset link has been sent.'),
+              content: const Text(
+                'If this email is registered, a reset link has been sent.',
+              ),
               backgroundColor: AppColors.primary,
             ),
           );
@@ -133,7 +137,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       AuthPrimaryButton(
                         label: 'Send Reset Link',
                         isLoading: isLoading,
-                        onPressed: !isLoading ? () => _handleSendResetLink(context) : null,
+                        onPressed: !isLoading
+                            ? () => _handleSendResetLink(context)
+                            : null,
                       ),
                       SizedBox(height: 40.h),
                       // Bottom Link

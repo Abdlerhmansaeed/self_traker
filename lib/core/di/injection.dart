@@ -18,8 +18,7 @@ Future<void> configureDependencies() async {
   getIt.registerSingleton<FirebaseAuth>(FirebaseAuth.instance);
   getIt.registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance);
   getIt.registerSingleton<GoogleSignIn>(GoogleSignIn());
-  
+
   // Run injectable configuration
   await getIt.init();
 }
-

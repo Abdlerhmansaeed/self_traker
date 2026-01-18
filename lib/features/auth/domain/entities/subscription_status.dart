@@ -1,5 +1,1 @@
-enum SubscriptionStatus {
-  free,
-  pro,
-  premium,
-}
+enum SubscriptionStatus { free, pro, premium }
