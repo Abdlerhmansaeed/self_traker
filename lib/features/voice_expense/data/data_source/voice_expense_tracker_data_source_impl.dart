@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
+import 'package:self_traker/env/env.dart';
 
 import '../model/parsed_expense_model.dart';
 import 'voice_expense_tracker_data_source.dart';
@@ -80,7 +81,7 @@ class VoiceExpenseTrackerDataSourceImpl
   void _initializeModel() {
     _model = GenerativeModel(
       model: 'gemini-2.0-flash-lite',
-      apiKey: '',
+      apiKey: Env.aiApiKey,
       systemInstruction: Content.system(_buildSystemInstruction()),
       generationConfig: GenerationConfig(
         responseMimeType: 'application/json',
