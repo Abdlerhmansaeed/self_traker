@@ -1,18 +1,22 @@
 import 'dart:async';
 import 'dart:developer';
-// import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/auth_failure.dart';
+import '../../domain/entities/user_entity.dart';
+import '../../domain/entities/validation_failure.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
+import '../../domain/usecases/rate_limiting_guard.dart';
 import '../../domain/usecases/send_password_reset_usecase.dart';
 import '../../domain/usecases/send_verification_email_usecase.dart';
 import '../../domain/usecases/sign_in_with_email_usecase.dart';
 import '../../domain/usecases/sign_in_with_google_usecase.dart';
 import '../../domain/usecases/sign_out_usecase.dart';
 import '../../domain/usecases/sign_up_with_email_usecase.dart';
-// import '../../exceptions/auth_exceptions.dart';
+import '../../domain/usecases/validate_display_name_usecase.dart';
+import '../../domain/usecases/validate_email_usecase.dart';
+import '../../domain/usecases/validate_password_usecase.dart';
+import '../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
 
 @injectable
@@ -24,6 +28,13 @@ class AuthCubit extends Cubit<AuthState> {
   final SendPasswordResetUseCase _sendPasswordResetUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final SignOutUseCase _signOutUseCase;
+  final ValidateEmailUseCase _validateEmailUseCase;
+  final ValidatePasswordUseCase _validatePasswordUseCase;
+  final ValidateDisplayNameUseCase _validateDisplayNameUseCase;
+  final RateLimitingGuard _rateLimitingGuard;
+  final AuthRepository _authRepository;
+
+  StreamSubscription<UserEntity?>? _authStateSubscription;
 
   AuthCubit({
     required SignUpWithEmailUseCase signUpWithEmailUseCase,
@@ -33,6 +44,11 @@ class AuthCubit extends Cubit<AuthState> {
     required SendPasswordResetUseCase sendPasswordResetUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
     required SignOutUseCase signOutUseCase,
+    required ValidateEmailUseCase validateEmailUseCase,
+    required ValidatePasswordUseCase validatePasswordUseCase,
+    required ValidateDisplayNameUseCase validateDisplayNameUseCase,
+    required RateLimitingGuard rateLimitingGuard,
+    required AuthRepository authRepository,
   }) : _signUpWithEmailUseCase = signUpWithEmailUseCase,
        _sendVerificationEmailUseCase = sendVerificationEmailUseCase,
        _signInWithEmailUseCase = signInWithEmailUseCase,
@@ -40,11 +56,73 @@ class AuthCubit extends Cubit<AuthState> {
        _sendPasswordResetUseCase = sendPasswordResetUseCase,
        _getCurrentUserUseCase = getCurrentUserUseCase,
        _signOutUseCase = signOutUseCase,
+       _validateEmailUseCase = validateEmailUseCase,
+       _validatePasswordUseCase = validatePasswordUseCase,
+       _validateDisplayNameUseCase = validateDisplayNameUseCase,
+       _rateLimitingGuard = rateLimitingGuard,
+       _authRepository = authRepository,
        super(const AuthInitial());
 
-  int _failedLoginAttempts = 0;
-  DateTime? _lockoutStartTime;
   Timer? _lockoutTimer;
+
+  /// Validate email field
+  /// Returns ValidationFailure if invalid, null if valid
+  ValidationFailure? validateEmail(String? email) {
+    final result = _validateEmailUseCase(email);
+    return result.fold((failure) => failure, (_) => null);
+  }
+
+  /// Validate password field
+  /// Returns ValidationFailure if invalid, null if valid
+  ValidationFailure? validatePassword(String? password) {
+    final result = _validatePasswordUseCase(password);
+    return result.fold((failure) => failure, (_) => null);
+  }
+
+  /// Validate display name field
+  /// Returns ValidationFailure if invalid, null if valid
+  ValidationFailure? validateDisplayName(String? displayName) {
+    final result = _validateDisplayNameUseCase(displayName);
+    return result.fold((failure) => failure, (_) => null);
+  }
+
+  /// Validate all signup fields
+  /// Returns map of field errors, empty if all valid
+  Map<String, ValidationFailure> validateSignupFields({
+    required String? email,
+    required String? password,
+    required String? displayName,
+  }) {
+    final errors = <String, ValidationFailure>{};
+
+    final emailError = validateEmail(email);
+    if (emailError != null) errors['email'] = emailError;
+
+    final passwordError = validatePassword(password);
+    if (passwordError != null) errors['password'] = passwordError;
+
+    final nameError = validateDisplayName(displayName);
+    if (nameError != null) errors['displayName'] = nameError;
+
+    return errors;
+  }
+
+  /// Validate login fields
+  /// Returns map of field errors, empty if all valid
+  Map<String, ValidationFailure> validateLoginFields({
+    required String? email,
+    required String? password,
+  }) {
+    final errors = <String, ValidationFailure>{};
+
+    final emailError = validateEmail(email);
+    if (emailError != null) errors['email'] = emailError;
+
+    final passwordError = validatePassword(password);
+    if (passwordError != null) errors['password'] = passwordError;
+
+    return errors;
+  }
 
   /// Sign up with email and password
   Future<void> signUpWithEmail({
@@ -52,9 +130,6 @@ class AuthCubit extends Cubit<AuthState> {
     required String password,
     required String displayName,
   }) async {
-    print(
-      'AuthCubit: Starting signUpWithEmail forxssssssssssssssssssssssssssssssssssssssssssssssssssss $email',
-    );
     emit(const AuthLoading());
 
     final result = await _signUpWithEmailUseCase(
@@ -98,10 +173,12 @@ class AuthCubit extends Cubit<AuthState> {
     required String email,
     required String password,
   }) async {
-    // Check if locked out
-    if (_isLockedOut()) {
-      final remaining = _getRemainingLockoutSeconds();
+    // Check rate limiting using domain guard
+    final rateLimitCheck = _rateLimitingGuard.checkAllowed();
+    if (rateLimitCheck.isLeft()) {
+      final remaining = _rateLimitingGuard.getRemainingLockoutSeconds();
       emit(AuthRateLimited(remaining));
+      _startLockoutTimer();
       return;
     }
 
@@ -115,10 +192,11 @@ class AuthCubit extends Cubit<AuthState> {
     result.fold(
       (failure) {
         if (failure is InvalidCredentialsFailure) {
-          _failedLoginAttempts++;
-          if (_failedLoginAttempts >= 5) {
-            _startLockout();
-            emit(AuthRateLimited(60));
+          _rateLimitingGuard.recordFailedAttempt();
+          if (_rateLimitingGuard.isLockedOut()) {
+            final remaining = _rateLimitingGuard.getRemainingLockoutSeconds();
+            emit(AuthRateLimited(remaining));
+            _startLockoutTimer();
           } else {
             emit(AuthError(failure));
           }
@@ -127,8 +205,8 @@ class AuthCubit extends Cubit<AuthState> {
         }
       },
       (user) {
-        _failedLoginAttempts = 0;
-        _cancelLockout();
+        _rateLimitingGuard.reset();
+        _cancelLockoutTimer();
 
         if (!user.emailVerified) {
           emit(EmailVerificationRequired(user));
@@ -158,8 +236,8 @@ class AuthCubit extends Cubit<AuthState> {
         }
       },
       (user) {
-        _failedLoginAttempts = 0;
-        _cancelLockout();
+        _rateLimitingGuard.reset();
+        _cancelLockoutTimer();
 
         if (!user.emailVerified) {
           emit(EmailVerificationRequired(user));
@@ -208,20 +286,20 @@ class AuthCubit extends Cubit<AuthState> {
     final result = await _signOutUseCase();
 
     result.fold((failure) => emit(AuthError(failure)), (_) {
-      _failedLoginAttempts = 0;
-      _cancelLockout();
+      _rateLimitingGuard.reset();
+      _cancelLockoutTimer();
       emit(const AuthUnauthenticated());
     });
   }
 
-  // Rate limiting helpers
-  void _startLockout() {
-    _lockoutStartTime = DateTime.now();
+  // Rate limiting timer management
+  void _startLockoutTimer() {
+    _lockoutTimer?.cancel();
     _lockoutTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!isClosed) {
-        final remaining = _getRemainingLockoutSeconds();
+        final remaining = _rateLimitingGuard.getRemainingLockoutSeconds();
         if (remaining <= 0) {
-          _cancelLockout();
+          _cancelLockoutTimer();
           emit(const AuthUnauthenticated());
         } else {
           emit(AuthRateLimited(remaining));
@@ -230,28 +308,51 @@ class AuthCubit extends Cubit<AuthState> {
     });
   }
 
-  void _cancelLockout() {
+  void _cancelLockoutTimer() {
     _lockoutTimer?.cancel();
     _lockoutTimer = null;
-    _lockoutStartTime = null;
   }
 
-  bool _isLockedOut() {
-    if (_lockoutStartTime == null) return false;
-    final elapsed = DateTime.now().difference(_lockoutStartTime!);
-    return elapsed.inSeconds < 60;
+  /// Subscribe to authentication state changes
+  /// Call this on app startup to listen for auth state changes
+  void subscribeToAuthStateChanges() {
+    _authStateSubscription?.cancel();
+    _authStateSubscription = _authRepository.watchAuthState().listen(
+      (user) {
+        if (isClosed) return;
+
+        if (user == null) {
+          // Only emit unauthenticated if not already in a transitional state
+          if (state is! AuthLoading && state is! AuthCheckingState) {
+            emit(const AuthUnauthenticated());
+          }
+        } else {
+          if (!user.emailVerified) {
+            emit(EmailVerificationRequired(user));
+          } else {
+            emit(AuthAuthenticated(user));
+          }
+        }
+      },
+      onError: (error) {
+        log('AuthCubit: Auth state stream error: $error');
+        if (!isClosed) {
+          emit(const AuthUnauthenticated());
+        }
+      },
+    );
   }
 
-  int _getRemainingLockoutSeconds() {
-    if (_lockoutStartTime == null) return 0;
-    final elapsed = DateTime.now().difference(_lockoutStartTime!);
-    final remaining = 60 - elapsed.inSeconds;
-    return remaining > 0 ? remaining : 0;
+  /// Cancel auth state subscription
+  void _cancelAuthStateSubscription() {
+    _authStateSubscription?.cancel();
+    _authStateSubscription = null;
   }
 
   @override
   Future<void> close() {
-    _cancelLockout();
+    _cancelLockoutTimer();
+    _cancelAuthStateSubscription();
     return super.close();
   }
 }

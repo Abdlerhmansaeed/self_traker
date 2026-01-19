@@ -97,6 +97,59 @@
 
 ---
 
+## Phase 3A: Architecture Remediation (BLOCKING - Clean Architecture Violations) 🚨
+
+**Purpose**: Fix Clean Architecture violations identified in code analysis. Business logic (validation) MUST be in domain layer, not UI widgets.
+
+**⚠️ CRITICAL**: These tasks address constitution violations and must be completed before proceeding with additional user stories or completing widget tests.
+
+**Analysis Reference**: Critical issues C1-C4, High priority issues H1-H8 from specification analysis.
+
+### Domain Layer - Validators
+
+- [X] T-R001 Create validation value objects in lib/features/auth/domain/validators/email_validator.dart
+- [X] T-R002 [P] Create validation value objects in lib/features/auth/domain/validators/password_validator.dart
+- [X] T-R003 [P] Create validation value objects in lib/features/auth/domain/validators/display_name_validator.dart
+- [X] T-R004 Create ValidationFailure sealed class in lib/features/auth/domain/entities/validation_failure.dart
+
+### Domain Layer - Use Cases
+
+- [X] T-R005 Create ValidateEmailUseCase in lib/features/auth/domain/usecases/validate_email_usecase.dart
+- [X] T-R006 [P] Create ValidatePasswordUseCase in lib/features/auth/domain/usecases/validate_password_usecase.dart
+- [X] T-R007 [P] Create ValidateDisplayNameUseCase in lib/features/auth/domain/usecases/validate_display_name_usecase.dart
+- [X] T-R008 Create RateLimitingGuard decorator for sign-in in lib/features/auth/domain/usecases/rate_limiting_guard.dart
+
+### Presentation Layer - Cubit Enhancement
+
+- [X] T-R009 Add validation states to AuthState in lib/features/auth/presentation/cubit/auth_state.dart
+- [X] T-R010 Add validation methods to AuthCubit (validateEmail, validatePassword, validateDisplayName) in lib/features/auth/presentation/cubit/auth_cubit.dart
+- [X] T-R011 Refactor rate limiting from AuthCubit to use RateLimitingGuard domain use case
+
+### Presentation Layer - UI Refactoring
+
+- [X] T-R012 Refactor signup_screen.dart to remove inline validation (_validateEmail, _validatePassword)
+- [X] T-R013 Refactor signup_screen.dart to remove regex patterns and use cubit validation methods
+- [X] T-R014 Refactor login_screen.dart to remove inline validation and use cubit validation methods
+- [X] T-R015 Implement EmailVerificationBanner widget in lib/features/auth/presentation/widgets/email_verification_banner.dart (FR-002a requirement)
+- [X] T-R016 Integrate EmailVerificationBanner into main app layout for EmailVerificationRequired state
+
+### Tests for Architecture Remediation
+
+- [X] T-R017 [P] Unit test for EmailValidator in test/features/auth/domain/validators/email_validator_test.dart
+- [X] T-R018 [P] Unit test for PasswordValidator in test/features/auth/domain/validators/password_validator_test.dart
+- [X] T-R019 [P] Unit test for DisplayNameValidator in test/features/auth/domain/validators/display_name_validator_test.dart
+- [X] T-R020 [P] Unit test for ValidateEmailUseCase in test/features/auth/domain/usecases/validate_email_usecase_test.dart
+- [X] T-R021 [P] Unit test for ValidatePasswordUseCase in test/features/auth/domain/usecases/validate_password_usecase_test.dart
+- [X] T-R022 [P] Unit test for ValidateDisplayNameUseCase in test/features/auth/domain/usecases/validate_display_name_usecase_test.dart
+- [X] T-R023 [P] Unit test for RateLimitingGuard in test/features/auth/domain/usecases/rate_limiting_guard_test.dart
+- [ ] T-R024 Update AuthCubit tests to include validation method tests in test/features/auth/presentation/cubit/auth_cubit_test.dart
+- [ ] T-R025 Complete T030d widget test for signup_screen.dart (now testable after validation moved)
+- [X] T-R026 [P] Widget test for EmailVerificationBanner in test/features/auth/presentation/widgets/email_verification_banner_test.dart
+
+**Checkpoint**: Architecture remediation complete - Clean Architecture principles fully enforced, widget tests unblocked
+
+---
+
 ## Phase 4: User Story 2 - Google Sign-In (Priority: P1)
 
 **Goal**: Users can sign up or log in instantly with Google account
@@ -209,13 +262,13 @@
 
 ### Implementation for US6
 
-- [ ] T059 Create AuthErrorMapper utility to map FirebaseAuthException codes to AuthFailure in lib/features/auth/exceptions/auth_error_mapper.dart
-- [ ] T060 Implement getLocalizedMessage method on AuthFailure using localization keys
-- [ ] T061 Update AuthCubit to emit localized error messages from AuthFailure
-- [ ] T062 Implement rate limiting state tracking in AuthCubit (5 attempts, 1-min lockout)
-- [ ] T063 Create countdown timer display for rate-limited state in login_screen.dart
-- [ ] T064 [P] Verify all error messages display correctly in English
-- [ ] T065 [P] Verify all error messages display correctly in Arabic
+- [X] T059 Create AuthErrorMapper utility to map FirebaseAuthException codes to AuthFailure in lib/features/auth/exceptions/auth_error_mapper.dart
+- [X] T060 Implement getLocalizedMessage method on AuthFailure using localization keys
+- [X] T061 Update AuthCubit to emit localized error messages from AuthFailure
+- [X] T062 Implement rate limiting state tracking in AuthCubit (5 attempts, 1-min lockout)
+- [X] T063 Create countdown timer display for rate-limited state in login_screen.dart
+- [X] T064 [P] Verify all error messages display correctly in English
+- [X] T065 [P] Verify all error messages display correctly in Arabic
 
 **Checkpoint**: User Story 6 complete - all errors display in correct language
 
@@ -229,47 +282,36 @@
 
 ### Data Layer for US5
 
-- [ ] T066 Add getCurrentUser, authStateChanges methods to auth_remote_data_source.dart interface
-- [ ] T067 Implement getCurrentUser returning current FirebaseAuth user in auth_remote_data_source_impl.dart
-- [ ] T068 Implement authStateChanges stream wrapper in auth_remote_data_source_impl.dart
+- [X] T066 Add getCurrentUser, authStateChanges methods to auth_remote_data_source.dart interface
+- [X] T067 Implement getCurrentUser returning current FirebaseAuth user in auth_remote_data_source_impl.dart
+- [X] T068 Implement authStateChanges stream wrapper in auth_remote_data_source_impl.dart
 
 ### Domain Layer for US5
 
-- [ ] T069 Add getCurrentUser, watchAuthState methods to AuthRepository interface
-- [ ] T070 Implement getCurrentUser, watchAuthState in AuthRepositoryImpl
-- [ ] T071 Create GetCurrentUserUseCase in lib/features/auth/domain/usecases/get_current_user_usecase.dart
-- [ ] T072 [P] Create SignOutUseCase in lib/features/auth/domain/usecases/sign_out_usecase.dart
+- [X] T069 Add getCurrentUser, watchAuthState methods to AuthRepository interface
+- [X] T070 Implement getCurrentUser, watchAuthState in AuthRepositoryImpl
+- [X] T071 Create GetCurrentUserUseCase in lib/features/auth/domain/usecases/get_current_user_usecase.dart
+- [X] T072 [P] Create SignOutUseCase in lib/features/auth/domain/usecases/sign_out_usecase.dart
 
 ### Presentation Layer for US5
 
-- [ ] T073 Add checkAuthState method to AuthCubit for app initialization
-- [ ] T074 Subscribe to authStateChanges stream in AuthCubit
-- [ ] T075 Update app routing to check auth state on startup in lib/core/routing/app_router.dart
-- [ ] T076 Navigate to appropriate screen based on auth state and onboarding status
-- [ ] T077 Handle invalidated session (show message, navigate to login)
+- [X] T073 Add checkAuthState method to AuthCubit for app initialization
+- [X] T074 Subscribe to authStateChanges stream in AuthCubit
+- [X] T075 Update app routing to check auth state on startup in lib/core/routing/app_router.dart
+- [X] T076 Navigate to appropriate screen based on auth state and onboarding status
+- [X] T077 Handle invalidated session (show message, navigate to login)
 
 ### Tests for User Story 5 (Constitution Required)
 
-- [ ] T077a [P] [US5] Unit test for GetCurrentUserUseCase in test/features/auth/domain/usecases/get_current_user_usecase_test.dart
-- [ ] T077b [P] [US5] Unit test for SignOutUseCase in test/features/auth/domain/usecases/sign_out_usecase_test.dart
-- [ ] T077c [P] [US5] Unit test for AuthCubit session methods in test/features/auth/presentation/cubit/auth_cubit_session_test.dart
+- [X] T077a [P] [US5] Unit test for GetCurrentUserUseCase in test/features/auth/domain/usecases/get_current_user_usecase_test.dart
+- [X] T077b [P] [US5] Unit test for SignOutUseCase in test/features/auth/domain/usecases/sign_out_usecase_test.dart
+- [X] T077c [P] [US5] Unit test for AuthCubit session methods in test/features/auth/presentation/cubit/auth_cubit_session_test.dart
 
 **Checkpoint**: User Story 5 complete - session persistence works independently
 
 ---
 
-## Phase 9: Email Verification Banner (Cross-cutting)
-
-**Purpose**: Persistent banner for unverified email users
-
-- [ ] T078 Create EmailVerificationBanner widget in lib/features/auth/presentation/widgets/email_verification_banner.dart
-- [ ] T079 Add resendVerificationEmail action to banner
-- [ ] T080 Integrate banner into app shell for unverified users
-- [ ] T081 Update AuthState to track emailVerified status
-
----
-
-## Phase 10: Polish & Integration
+## Phase 9: Polish & Integration
 
 **Purpose**: Final integration, cleanup, and validation
 
@@ -297,21 +339,26 @@ Phase 2 (Foundational) ───────────────────
               ┌───────────────────────────────────┘
               │
               ▼
-    ┌─────────┴─────────┬─────────────────┬─────────────────┐
-    │                   │                 │                 │
-Phase 3 (US1-P1)   Phase 4 (US2-P1)  Phase 5 (US3-P2)  Phase 6 (US4-P2)
-Email Signup       Google Sign-In    Email Login       Password Reset
-    │                   │                 │                 │
-    └─────────┬─────────┴─────────────────┴─────────────────┘
+         Phase 3 (US1-P1) ─── Email Signup (initial implementation)
               │
               ▼
-         Phase 7 (US6-P2) ─── Error Localization
+         Phase 3A (Remediation) 🚨 BLOCKS further development
+              │                    Fixes constitution violations
+              │                    Unblocks widget tests
+              │
+              ▼
+    ┌─────────┴─────────┬─────────────────┬─────────────────┐
+    │                   │                 │                 │
+Phase 4 (US2-P1)   Phase 5 (US3-P2)  Phase 6 (US4-P2)  Phase 7 (US6-P2)
+Google Sign-In     Email Login       Password Reset    Error Localization
+    │                   │                 │                 │
+    └─────────┬─────────┴─────────────────┴─────────────────┘
               │
               ▼
          Phase 8 (US5-P3) ─── Session Persistence
               │
               ▼
-         Phase 9 ─── Verification Banner
+         Phase 9 ─── Verification Banner (moved to Phase 3A)
               │
               ▼
          Phase 10 ─── Polish & Integration
@@ -319,14 +366,15 @@ Email Signup       Google Sign-In    Email Login       Password Reset
 
 ### User Story Dependencies
 
-| Story | Can Start After | Dependencies |
-|-------|-----------------|--------------|
-| US1 (Email Signup) | Phase 2 | None |
-| US2 (Google Sign-In) | Phase 2 | None (parallel with US1) |
-| US3 (Email Login) | Phase 2 | Can share data layer with US1 |
-| US4 (Password Reset) | Phase 2 | None |
-| US6 (Error Localization) | US1-US4 | Uses errors from all auth flows |
-| US5 (Session) | Phase 2 | Integrates with routing |
+| Story | Can Start After | Dependencies | Status |
+|-------|-----------------|--------------|--------|
+| US1 (Email Signup) | Phase 2 | None | ⚠️ Implemented but needs remediation |
+| **Architecture Remediation** | US1 initial | **BLOCKS further development** | ❌ Critical - must complete |
+| US2 (Google Sign-In) | Phase 3A | Architecture fixes complete | ⏸️ Blocked by Phase 3A |
+| US3 (Email Login) | Phase 3A | Can share data layer with US1, needs clean validators | ⏸️ Blocked by Phase 3A |
+| US4 (Password Reset) | Phase 3A | None | ⏸️ Blocked by Phase 3A |
+| US6 (Error Localization) | US1-US4 | Uses errors from all auth flows | ⏸️ Blocked by Phase 3A |
+| US5 (Session) | Phase 3A | Integrates with routing | ⏸️ Blocked by Phase 3A |
 
 ### Parallel Opportunities
 
@@ -337,43 +385,99 @@ T012 UserModel + T013 UsageModel → run in parallel
 T015 English localization + T016 Arabic localization → run in parallel
 ```
 
-**User Stories After Phase 2**:
+**Within Phase 3A (Architecture Remediation)**:
 ```
-US1 (Email Signup) + US2 (Google Sign-In) → run in parallel (both P1)
-US3 (Email Login) + US4 (Password Reset) → run in parallel (both P2)
+T-R002 PasswordValidator + T-R003 DisplayNameValidator → run in parallel (after T-R001)
+T-R006 ValidatePasswordUseCase + T-R007 ValidateDisplayNameUseCase → run in parallel
+T-R017 to T-R023 (all validator/use case tests) → run in parallel
+```
+
+**User Stories After Phase 3A**:
+```
+⚠️ IMPORTANT: Phase 3A MUST complete before any user story work continues
+After Phase 3A completion:
+  US2 (Google Sign-In) + US3 (Email Login) + US4 (Password Reset) → can run in parallel
 ```
 
 ---
 
 ## Implementation Strategy
 
-### MVP First (User Story 1 Only)
+### 🚨 CRITICAL: Architecture Remediation Required
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational
-3. Complete Phase 3: User Story 1 (Email/Password Registration)
-4. **STOP and VALIDATE**: Test registration independently
-5. Deploy/demo if ready - users can now register!
+**Current State**: User Story 1 (Email/Password Registration) is functionally complete but violates Clean Architecture principles:
+- ❌ Validation logic in UI widgets (should be in domain layer)
+- ❌ Business rules in presentation layer
+- ❌ Constitution violations preventing further development
+- ❌ Widget tests blocked by untestable business logic in UI
 
-### Recommended Order (Incremental)
+**REQUIRED ACTION**: Complete Phase 3A (Architecture Remediation) before continuing
 
-1. Setup → Foundational → **Foundation ready**
-2. US1 (Email Signup) → Test → **MVP: Users can register**
+### Recommended Execution Path
+
+#### Step 1: Architecture Fix (IMMEDIATE - BLOCKING)
+1. **Complete Phase 3A** (T-R001 through T-R026)
+   - Create domain validators and validation use cases
+   - Enhance AuthCubit with validation methods
+   - Refactor UI screens to remove business logic
+   - Complete previously blocked widget tests
+2. **Validate**: Run tests, verify clean architecture compliance
+3. **Result**: ✅ Foundation is clean, can proceed with confidence
+
+#### Step 2: MVP Completion (After Phase 3A)
+1. Setup → Foundational → Architecture Remediation → **Clean foundation**
+2. US1 (already functional, now architecturally clean) → **MVP: Users can register**
 3. US2 (Google Sign-In) → Test → **Users can sign in with Google**
-4. US3 (Email Login) → Test → **Returning users can log in**
-5. US4 (Password Reset) → Test → **Users can recover accounts**
-6. US6 (Error Localization) → Test → **Errors in AR/EN**
-7. US5 (Session) → Test → **Auto-login works**
-8. Verification Banner → Test → **Unverified users prompted**
+4. **STOP and VALIDATE**: Test independently, deploy if ready
+
+#### Step 3: Full Feature (Incremental)
+5. US3 (Email Login) → Test → **Returning users can log in**
+6. US4 (Password Reset) → Test → **Users can recover accounts**
+7. US6 (Error Localization) → Test → **Errors in AR/EN**
+8. US5 (Session) → Test → **Auto-login works**
 9. Polish → Validate → **Production ready**
+
+### Alternative: Technical Debt Path (NOT RECOMMENDED)
+
+⚠️ If you choose to skip Phase 3A remediation:
+- Document constitutional exception with justification
+- Accept that widget tests will test business logic (anti-pattern)
+- Plan mandatory refactor before next feature
+- Risk: Technical debt accumulates, future refactoring more costly
+
+### MVP First (Original - OUTDATED)
+
+~~1. Complete Phase 1: Setup~~  
+~~2. Complete Phase 2: Foundational~~  
+~~3. Complete Phase 3: User Story 1 (Email/Password Registration)~~  
+~~4. **STOP and VALIDATE**: Test registration independently~~  
+~~5. Deploy/demo if ready - users can now register!~~
+
+**Status**: Steps 1-3 complete but Phase 3A remediation now required before proceeding.
+
+### Recommended Order (Incremental - UPDATED)
+
+1. ~~Setup → Foundational → **Foundation ready**~~ ✅ Complete
+2. ~~US1 (Email Signup) → Test → **MVP: Users can register**~~ ⚠️ Functional but needs remediation
+3. **Architecture Remediation (Phase 3A) → Test → Constitution compliant** ❌ REQUIRED NEXT
+4. US2 (Google Sign-In) → Test → **Users can sign in with Google**
+5. US3 (Email Login) → Test → **Returning users can log in**
+6. US4 (Password Reset) → Test → **Users can recover accounts**
+7. US6 (Error Localization) → Test → **Errors in AR/EN**
+8. US5 (Session) → Test → **Auto-login works**
+9. ~~Verification Banner → Test → **Unverified users prompted**~~ (moved to Phase 3A T-R015/T-R016)
+10. Polish → Validate → **Production ready**
 
 ---
 
 ## Notes
 
+- **Architecture Remediation (Phase 3A)** added based on code analysis identifying Clean Architecture violations
+- Phase 3A is BLOCKING - must complete before further user story development
 - Test tasks included per constitution requirements (unit tests for use cases/cubits, widget tests for screens)
 - All tasks include exact file paths
 - [P] tasks can run in parallel within their phase
 - [USn] labels map tasks to user stories for traceability
 - Each user story checkpoint is independently testable
 - Commit after each completed task or logical group
+- **EmailVerificationBanner** implementation moved from Phase 9 to Phase 3A (T-R015, T-R016) as part of remediation

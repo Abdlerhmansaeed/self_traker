@@ -8,9 +8,9 @@ import '../../../../../core/routing/app_router.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../domain/entities/validation_failure.dart';
 import '../../cubit/auth_cubit.dart';
 import '../../cubit/auth_state.dart';
-// import '../../domain/extensions/auth_failure_localization.dart';
 import '../../widgets/auth_bottom_link.dart';
 import '../../widgets/auth_divider.dart';
 import '../../widgets/auth_form_field.dart';
@@ -49,6 +49,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _handleGoogleSignIn(BuildContext context) {
     context.read<AuthCubit>().signInWithGoogle();
+  }
+
+  /// Convert ValidationFailure to user-friendly error message
+  String? _getValidationErrorMessage(ValidationFailure? failure) {
+    if (failure == null) return null;
+
+    return switch (failure) {
+      EmailEmptyFailure() => 'Please enter your email',
+      EmailInvalidFormatFailure() => 'Please enter a valid email',
+      EmailTooLongFailure() => 'Email is too long',
+      PasswordEmptyFailure() => 'Please enter your password',
+      PasswordTooShortFailure() => 'Password is too short',
+      PasswordMissingUppercaseFailure() ||
+      PasswordMissingLowercaseFailure() ||
+      PasswordMissingNumberFailure() => 'Password does not meet requirements',
+      DisplayNameEmptyFailure() || DisplayNameTooShortFailure() => null,
+    };
   }
 
   @override
@@ -144,13 +161,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
+                          final failure = context
+                              .read<AuthCubit>()
+                              .validateEmail(value);
+                          return _getValidationErrorMessage(failure);
                         },
                       ),
                       SizedBox(height: AppDimensions.spacingMd),
@@ -190,10 +204,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             isPasswordField: true,
                             textInputAction: TextInputAction.done,
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
-                              }
-                              return null;
+                              final failure = context
+                                  .read<AuthCubit>()
+                                  .validatePassword(value);
+                              return _getValidationErrorMessage(failure);
                             },
                           ),
                         ],

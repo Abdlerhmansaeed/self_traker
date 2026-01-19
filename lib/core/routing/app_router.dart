@@ -3,6 +3,7 @@ import 'package:self_traker/features/auth/presentation/pages/forgot_password/for
 import 'package:self_traker/features/auth/presentation/pages/login/login_screen.dart';
 import 'package:self_traker/features/auth/presentation/pages/reset_password/reset_password_screen.dart';
 import 'package:self_traker/features/auth/presentation/pages/signup/signup_screen.dart';
+import 'package:self_traker/features/auth/presentation/pages/splash/splash_screen.dart';
 import 'package:self_traker/features/notifications/UI/notification_screen.dart';
 
 import '../../features/app_layout/main_layout/main_layout.dart';
@@ -10,6 +11,7 @@ import '../../features/onboarding/UI/onboarding_screen.dart';
 
 /// Route paths constants
 abstract class RoutesNames {
+  static const String splash = '/';
   static const String onboarding = '/onboarding';
   static const String main = '/main';
   static const String notifications = '/notifications';
@@ -24,9 +26,14 @@ class AppRouter {
   AppRouter._();
 
   static final GoRouter router = GoRouter(
-    initialLocation: RoutesNames.onboarding,
+    initialLocation: RoutesNames.splash,
     debugLogDiagnostics: true,
     routes: [
+      GoRoute(
+        path: RoutesNames.splash,
+        name: RoutesNames.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: RoutesNames.onboarding,
         name: RoutesNames.onboarding,

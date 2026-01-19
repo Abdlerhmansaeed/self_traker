@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:self_traker/core/di/injection.dart';
 import 'package:self_traker/features/voice_expense/presentation/cubit/voice_expense_cubit.dart';
 import '../../analytics/presentation/pages/analytics_screen.dart';
+import '../../auth/presentation/cubit/auth_cubit.dart';
+import '../../auth/presentation/cubit/auth_state.dart';
+import '../../auth/presentation/widgets/email_verification_banner.dart';
 import '../../budget/presentation/pages/budget_screen.dart';
 import '../../home/presentation/pages/home_screen.dart';
 import '../../settings/presentation/pages/settings_screen.dart';
@@ -28,23 +31,37 @@ class _MainLayoutState extends State<MainLayout> {
       ],
       child: BlocBuilder<MainLayoutCubit, MainLayoutState>(
         builder: (context, state) {
-          return Scaffold(
-            body: IndexedStack(
-              index: state.currentIndex,
-              children: const [
-                HomeScreen(),
-                AnalyticsScreen(),
-                BudgetScreen(),
-                SettingsScreen(),
-              ],
-            ),
-            bottomNavigationBar: CustomBottomNavBar(
-              currentIndex: state.currentIndex,
-              onTap: (index) {
-                context.read<MainLayoutCubit>().changeTab(index);
-              },
-              onFabPressed: () => _showVoiceExpenseSheet(context),
-            ),
+          return BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, authState) {
+              return Scaffold(
+                body: Column(
+                  children: [
+                    // Show verification banner if email is not verified
+                    if (authState is EmailVerificationRequired)
+                      const EmailVerificationBanner(),
+                    // Main content
+                    Expanded(
+                      child: IndexedStack(
+                        index: state.currentIndex,
+                        children: const [
+                          HomeScreen(),
+                          AnalyticsScreen(),
+                          BudgetScreen(),
+                          SettingsScreen(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                bottomNavigationBar: CustomBottomNavBar(
+                  currentIndex: state.currentIndex,
+                  onTap: (index) {
+                    context.read<MainLayoutCubit>().changeTab(index);
+                  },
+                  onFabPressed: () => _showVoiceExpenseSheet(context),
+                ),
+              );
+            },
           );
         },
       ),

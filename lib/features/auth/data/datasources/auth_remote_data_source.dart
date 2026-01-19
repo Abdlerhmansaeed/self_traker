@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
-import '../models/usage_model.dart';
+// import '../models/usage_model.dart';
 
 abstract interface class AuthRemoteDataSource {
   /// Get the current authenticated user from Firebase

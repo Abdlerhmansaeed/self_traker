@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/auth_failure.dart';
 import '../../domain/entities/user_entity.dart';
+import '../../domain/entities/validation_failure.dart';
 
 sealed class AuthState extends Equatable {
   const AuthState();
@@ -59,4 +60,18 @@ class EmailVerificationRequired extends AuthState {
 
   @override
   List<Object?> get props => [user];
+}
+
+/// Validation states for form fields
+class AuthValidating extends AuthState {
+  const AuthValidating();
+}
+
+class AuthFieldValidationFailed extends AuthState {
+  final Map<String, ValidationFailure> fieldErrors;
+
+  const AuthFieldValidationFailed(this.fieldErrors);
+
+  @override
+  List<Object?> get props => [fieldErrors];
 }

@@ -9,6 +9,7 @@ import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../cubit/auth_cubit.dart';
 import '../../cubit/auth_state.dart';
+import '../../../domain/entities/validation_failure.dart';
 import '../../../domain/extensions/auth_failure_localization.dart';
 import '../../widgets/auth_back_button.dart';
 import '../../widgets/auth_bottom_link.dart';
@@ -30,15 +31,6 @@ class _SignupScreenState extends State<SignupScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
-  // Regex patterns for validation
-  static final _emailRegex = RegExp(
-    r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$',
-  );
-
-  static final _passwordRegex = RegExp(
-    r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$',
-  );
 
   @override
   void dispose() {
@@ -62,30 +54,28 @@ class _SignupScreenState extends State<SignupScreen> {
     context.read<AuthCubit>().signInWithGoogle();
   }
 
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your email';
-    }
-    if (value.length > 320) {
-      return 'Email must be less than 320 characters';
-    }
-    if (!_emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email address';
-    }
-    return null;
-  }
+  /// Convert ValidationFailure to user-friendly error message
+  String? _getValidationErrorMessage(ValidationFailure? failure) {
+    if (failure == null) return null;
 
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a password';
-    }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    if (!_passwordRegex.hasMatch(value)) {
-      return 'Password must contain uppercase, lowercase, and number';
-    }
-    return null;
+    return switch (failure) {
+      EmailEmptyFailure() => 'Please enter your email',
+      EmailInvalidFormatFailure() => 'Please enter a valid email address',
+      EmailTooLongFailure(:final maxLength) =>
+        'Email must be less than $maxLength characters',
+      PasswordEmptyFailure() => 'Please enter a password',
+      PasswordTooShortFailure(:final minLength) =>
+        'Password must be at least $minLength characters',
+      PasswordMissingUppercaseFailure() =>
+        'Password must contain an uppercase letter',
+      PasswordMissingLowercaseFailure() =>
+        'Password must contain a lowercase letter',
+      PasswordMissingNumberFailure() => 'Password must contain a number',
+      DisplayNameEmptyFailure() => 'Please enter your name',
+      // ignore: unreachable_switch_case
+      DisplayNameEmptyFailure() => 'Please enter your name',
+      DisplayNameTooShortFailure() => 'Please enter a valid name',
+    };
   }
 
   @override
@@ -150,10 +140,10 @@ class _SignupScreenState extends State<SignupScreen> {
                         hintText: 'user name',
                         textInputAction: TextInputAction.next,
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
+                          final failure = context
+                              .read<AuthCubit>()
+                              .validateDisplayName(value);
+                          return _getValidationErrorMessage(failure);
                         },
                       ),
                       SizedBox(height: AppDimensions.spacingMd),
@@ -164,7 +154,12 @@ class _SignupScreenState extends State<SignupScreen> {
                         hintText: 'email',
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
-                        validator: _validateEmail,
+                        validator: (value) {
+                          final failure = context
+                              .read<AuthCubit>()
+                              .validateEmail(value);
+                          return _getValidationErrorMessage(failure);
+                        },
                       ),
                       SizedBox(height: AppDimensions.spacingMd),
                       // Password Field
@@ -174,7 +169,12 @@ class _SignupScreenState extends State<SignupScreen> {
                         hintText: '********',
                         isPasswordField: true,
                         textInputAction: TextInputAction.done,
-                        validator: _validatePassword,
+                        validator: (value) {
+                          final failure = context
+                              .read<AuthCubit>()
+                              .validatePassword(value);
+                          return _getValidationErrorMessage(failure);
+                        },
                       ),
                       SizedBox(height: 8.h),
                       // Password requirements hint
